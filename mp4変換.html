@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>.mp4変換</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eff7 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e7e7e 100%);
+            color: white;
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c5aa0 0%, #1e7e7e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(44, 90, 160, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e8f0f7;
+            color: #2c5aa0;
+            border: 2px solid #2c5aa0;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #d4e3f0;
+        }
+
+        .btn-danger {
+            background: #e8cccc;
+            color: #c41c3b;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #d4b3b3;
+        }
+
+        .btn-success {
+            background: #d4e8d4;
+            color: #2d7d2d;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #c0ddc0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #1e7e7e;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border-left: 4px solid #c41c3b;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .video-list {
+            margin: 20px 0;
+        }
+
+        .video-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .video-item-name {
+            font-weight: 600;
+            color: #2c5aa0;
+            word-break: break-word;
+        }
+
+        .video-item-info {
+            font-size: 13px;
+            color: #666;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .video-item-status {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .status-waiting {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-loading {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-converting {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-failed {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status-cancelled {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2c5aa0 0%, #1e7e7e 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .collapsible {
+            background: #f5f7fa;
+            color: #333;
+            cursor: pointer;
+            padding: 16px;
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .collapsible:hover {
+            background: #e8eff7;
+        }
+
+        .collapsible.active {
+            background: #e8f4f8;
+            border-color: #1e7e7e;
+        }
+
+        .collapsible-arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible.active .collapsible-arrow {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            display: none;
+            background: #fafbfc;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        .collapsible-content h3 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: #2c5aa0;
+            font-size: 15px;
+        }
+
+        .collapsible-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .collapsible-content ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .collapsible-content li {
+            margin-bottom: 6px;
+        }
+
+        .collapsible-content code {
+            background: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        .collapsible-content pre {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 12px 0;
+            border: 1px solid #dee2e6;
+        }
+
+        .settings-display {
+            background: #e8f4f8;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #2c5aa0;
+            margin: 16px 0;
+            font-weight: 500;
+        }
+
+        .processing-header {
+            background: #e8f4f8;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .processing-header h3 {
+            color: #1e7e7e;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .processing-status {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #ddd;
+            border-top-color: #2c5aa0;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-summary {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .result-counts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .count-item {
+            padding: 12px;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .count-item.success {
+            background: #e8f5e9;
+            color: #2d7d2d;
+        }
+
+        .count-item.failed {
+            background: #ffebee;
+            color: #c41c3b;
+        }
+
+        .count-item.cancelled {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .count-item-number {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .count-item-label {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .result-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .result-item-name {
+            font-weight: 600;
+            color: #2c5aa0;
+            word-break: break-word;
+            margin-bottom: 8px;
+        }
+
+        .result-item-sizes {
+            font-size: 13px;
+            color: #666;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .size-box {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        .size-label {
+            font-size: 12px;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .size-value {
+            font-weight: 600;
+            display: block;
+        }
+
+        .result-item-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .result-item-buttons button {
+            padding: 10px 16px;
+            font-size: 14px;
+            flex: none;
+            min-width: auto;
+        }
+
+        .privacy-notice {
+            background: #e8f4f8;
+            border: 1px solid #1e7e7e;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+
+            .header {
+                padding: 24px 16px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 15px;
+                min-width: 120px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group button {
+                flex: 1;
+            }
+
+            .video-item-info {
+                grid-template-columns: 1fr;
+            }
+
+            .result-counts {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .result-item-sizes {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 700px) {
+            .header {
+                padding: 16px 24px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 4px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>.mp4変換</h1>
+            <p>MOV動画を、共有しやすいMP4に変換します</p>
+        </div>
+
+        <div class="content" id="mainContent">
+            <div class="privacy-notice">
+                <strong>プライバシーに関するご説明：</strong>動画はこの端末のブラウザ内で変換され、変換用サーバーへ送信されません。ただし、ファイルの保存先や共有先によっては、iCloudなどへ同期・送信される場合があります。動画がiCloudなどのクラウドストレージにある場合、選択時にOSがダウンロードする可能性があります。
+            </div>
+
+            <div class="section" id="selectSection">
+                <div class="button-group">
+                    <button class="btn-primary" id="selectVideoBtn">📁 動画を選ぶ</button>
+                </div>
+                <input type="file" id="videoFileInput" class="file-input" accept=".mov,.mp4" multiple>
+
+                <div id="videoListContainer" class="video-list"></div>
+
+                <div id="settingsDisplay" class="settings-display">
+                    ⚙️ 容量優先 / 最大1080p / 端末内処理
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="convertBtn" disabled>🎬 変換を開始</button>
+                </div>
+            </div>
+
+            <div class="section" id="processingSection" style="display: none;">
+                <div class="processing-header">
+                    <h3><span class="spinner"></span>変換処理中</h3>
+                    <div class="processing-status" id="processingStatus">初期化中...</div>
+                    <div class="processing-status" id="currentStatus"></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText"></div>
+                </div>
+                <div class="info-box">
+                    ⏳ 変換中はこの画面を開いたままにしてください。処理時間は動画の長さと容量により異なります。
+                </div>
+                <div class="button-group">
+                    <button class="btn-danger" id="cancelBtn">⏹️ 中止</button>
+                </div>
+            </div>
+
+            <div class="section" id="resultSection" style="display: none;">
+                <div class="result-summary" id="resultSummary"></div>
+                <div id="resultItemsContainer"></div>
+                <div class="button-group" id="resultButtonGroup"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <button class="collapsible" id="helpToggle">
+                <span class="collapsible-arrow">▼</span>
+                📖 導入・使い方
+            </button>
+            <div class="collapsible-content" id="helpContent">
+                <h3>🎯 このアプリについて</h3>
+                <p><strong>アプリ名：</strong>.mp4変換</p>
+                <p><strong>用途：</strong>高校の教職員がMOV動画をMP4に変換するためのツール</p>
+                <p><strong>対応環境：</strong>iPadのSafari、WindowsのEdge、その他のモダンブラウザ</p>
+                <p><strong>実機での動作確認が必要です。</strong>特にiPadの古いモデルやブラウザのバージョンによっては、一部機能が利用できない場合があります。</p>
+
+                <h3>採用構成と対応条件</h3>
+                <p><strong>変換エンジン：</strong>FFmpeg.wasm（WebAssemblyポート）</p>
+                <p><strong>バージョン：</strong>FFmpeg 6.0系にベースした最新ビルド</p>
+                <p><strong>ライセンス：</strong>FFmpeg本体はLGPLv2.1以上。FFmpeg.wasmはMITライセンス</p>
+                <p><strong>iPadのSafari対応：</strong>iOS 14.5以上で、WebAssemblyとWeb Workersに対応しているバージョン。ただし、iPadのメモリが限られているため、大容量動画（1GB以上）の変換は失敗する可能性が高いです。</p>
+                <p><strong>H.264・AACエンコード：</strong>FFmpeg.wasmは標準でH.264（H.264 / AVC）とAAC（Advanced Audio Codec）に対応しています。</p>
+                <p><strong>WebAssemblyのメモリ消費：</strong>FFmpeg.wasmは起動時に数十～数百MBのメモリを使用します。変換対象の動画ファイルもメモリに読み込まれるため、端末のメモリが不足するとブラウザがクラッシュする可能性があります。</p>
+                <p><strong>Web Workerの使用方法：</strong>このアプリはメインスレッドをブロックしないため、Web Workerを使用した別プロセスで変換を実行します。ただし、最新のFFmpeg.wasmビルドは単一スレッド版を使用しており、SharedArrayBufferは使用していません。</p>
+                <p><strong>採用構成：</strong>シングルスレッド版（単一スレッド版）を採用しました。理由：iPad や古いブラウザとの互換性を重視し、クロスオリジン分離やHTTPヘッダーの設定を最小限にするためです。</p>
+
+                <h3>セットアップ手順（Cloudflare Pagesへの公開）</h3>
+                <p>このアプリを公開するには、依存ファイル（FFmpeg.wasm）の配置が必須です。</p>
+
+                <h3>ステップ1：必要なファイルの入手</h3>
+                <p>FFmpeg.wasmの最新ビルドを入手します：</p>
+                <ul>
+                    <li>公式サイト：<a href="https://ffmpeg.wasm.force-sh.github.io/" target="_blank">https://ffmpeg.wasm.force-sh.github.io/</a></li>
+                    <li>NPMパッケージ：<code>npm install @ffmpeg/ffmpeg</code></li>
+                    <li>バージョン管理：必ず <code>@ffmpeg/ffmpeg@0.12.x</code> 系を使用してください。</li>
+                </ul>
+
+                <h3>ステップ2：ファイル配置</h3>
+                <p>公開ディレクトリ構成（例）：</p>
+                <pre>public/
+├── index.html
+└── ffmpeg/
+    ├── ffmpeg-core.js
+    ├── ffmpeg-core.wasm
+    └── ffmpeg-worker.js</pre>
+
+                <p><code>node_modules/@ffmpeg/ffmpeg/dist/</code> 内のファイルを以下の順にコピーしてください：</p>
+                <ul>
+                    <li><code>ffmpeg-core.js</code> → <code>public/ffmpeg/ffmpeg-core.js</code></li>
+                    <li><code>ffmpeg-core.wasm</code> → <code>public/ffmpeg/ffmpeg-core.wasm</code></li>
+                    <li><code>ffmpeg-worker.js</code> → <code>public/ffmpeg/ffmpeg-worker.js</code></li>
+                </ul>
+
+                <h3>ステップ3：HTTPヘッダーの設定</h3>
+                <p>Cloudflare Pagesの場合、<code>_headers</code> ファイルをプロジェクトルートに配置してください：</p>
+                <pre>/*
+  X-Robots-Tag: noindex, nofollow
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+/ffmpeg/*
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/wasm</pre>
+
+                <p><strong>重要：</strong>このアプリはSharedArrayBufferを使用していないため、クロスオリジン分離は不要です。</p>
+
+                <h3>ステップ4：ローカル環境での確認</h3>
+                <p>Windowsでのローカルテスト手順：</p>
+                <ol>
+                    <li>PowerShellを「管理者として」起動</li>
+                    <li>プロジェクトフォルダに移動：<code>cd C:\path\to\project</code></li>
+                    <li>Python 3をインストール済みの場合：<code>python -m http.server 8000</code></li>
+                    <li>ブラウザで <code>http://localhost:8000</code> にアクセス</li>
+                    <li>ローカル環境では <code>file://</code> プロトコルではなく、HTTPサーバー経由でアクセスしてください。</li>
+                </ol>
+
+                <h3>ステップ5：Cloudflare Pagesへのデプロイ</h3>
+                <ol>
+                    <li>GitHubリポジトリを作成し、<code>index.html</code> と <code>public/</code> フォルダをコミット</li>
+                    <li>Cloudflare Pagesのダッシュボードから「新規プロジェクト」を選択</li>
+                    <li>GitHubリポジトリを接続</li>
+                    <li>ビルド設定：
+                        <ul>
+                            <li>フレームワーク：なし</li>
+                            <li>ビルドコマンド：（空白）</li>
+                            <li>ビルド出力ディレクトリ：<code>public</code></li>
+                        </ul>
+                    </li>
+                    <li>デプロイ完了後、<code>_headers</code> ファイルが正しく反映されたか確認</li>
+                </ol>
+
+                <h3>ステップ6：検索除外・アクセス制限</h3>
+                <p><strong>検索エンジンからの除外：</strong></p>
+                <ul>
+                    <li>このアプリのHTMLに <code>&lt;meta name="robots" content="noindex, nofollow"&gt;</code> を設定済み</li>
+                    <li>HTTPヘッダーの <code>X-Robots-Tag: noindex, nofollow</code> で追加対策</li>
+                    <li><strong>注意：</strong>noindexはリクエスト制限ではなく、検索結果への表示を制限するだけです。アクセス自体は制限されません。</li>
+                </ul>
+                <p><strong>アクセス制限の推奨方法：</strong>教職員限定の運用を検討している場合、Cloudflare Accessで認証を設定してください：</p>
+                <ol>
+                    <li>Cloudflareのダッシュボード → Access → Applications で新規作成</li>
+                    <li>アプリのドメイン、認証方法（Microsoftアカウント、Google Workspace等）を選択</li>
+                    <li>ポリシーで対象ユーザーを指定</li>
+                    <li>設定完了後、認証なしではアプリにアクセスできなくなります</li>
+                </ol>
+
+                <h3>ステップ7：iPadでのテスト</h3>
+                <ul>
+                    <li>デスクトップPCとiPadが同じネットワーク内にあることを確認</li>
+                    <li>PCのコマンドプロンプトで <code>ipconfig</code> を実行してIPアドレス（例：192.168.1.100）を取得</li>
+                    <li>iPadのSafariで <code>http://192.168.1.100:8000</code> にアクセス</li>
+                    <li>HTTPSサイトの場合、自己署名証明書を使用しないでください。Cloudflare Pagesは自動的にHTTPS対応します。</li>
+                </ul>
+
+                <h3>ファイル保存とセキュリティ</h3>
+                <p><strong>iPadでのMP4保存方法：</strong></p>
+                <ol>
+                    <li>「MP4を保存」ボタンをタップ</li>
+                    <li>「ファイル」app へ保存するか、別の形式（iCloudなど）を選択</li>
+                    <li>保存先を指定すると、MP4ファイルがそこに保存されます</li>
+                    <li>ダウンロード開始=保存完了ではありません。「ファイル」app で確認してください。</li>
+                </ol>
+                <p><strong>写真への保存：</strong></p>
+                <p>環境によっては「共有」メニューから「写真に保存」が表示される場合があります。その場合、タップすると動画が写真Libraryに追加されます。ただし、すべての環境で対応しているわけではありません。</p>
+
+                <h3>セキュリティと注意事項</h3>
+                <ul>
+                    <li><strong>動画はサーバーに送信されません。</strong>ただし、ブラウザの読み込み時にCDNからファイルがダウンロードされます。</li>
+                    <li><strong>ブラウザ内ストレージ：</strong>このアプリはOPFS（Origin Private File System）を試行的に使用し、メモリ不足を防いでいます。ただし、ページを閉じてもデータが残る保証はできません。</li>
+                    <li><strong>一時データの削除：</strong>結果画面の「変換済みデータを削除」をタップすると、ブラウザ内に保存された変換済みファイルが削除されます。</li>
+                    <li><strong>ライセンス：</strong>FFmpeg.wasmのライセンスに従い、LGPLv2.1以上の条件が適用されます。商用利用の場合は別途確認してください。</li>
+                </ul>
+
+                <h3>学校管理デバイスでの利用</h3>
+                <p>学校管理のiPadで使用する場合、以下を事前に確認してください：</p>
+                <ul>
+                    <li>Cloudflare Pagesなどの外部WebサイトへのアクセスがMDMで許可されているか</li>
+                    <li>動画ファイルの保存・共有操作がブロックされていないか</li>
+                    <li>必要に応じて学校のIT管理者に相談してください</li>
+                </ul>
+
+                <h3>トラブルシューティング</h3>
+                <p><strong>「FFmpeg を読み込めません」エラーが表示される場合：</strong></p>
+                <ul>
+                    <li>依存ファイル（ffmpeg-core.js, ffmpeg-core.wasm）がサーバーに正しく配置されているか確認</li>
+                    <li>ブラウザの開発者ツール（F12）→ Console タブでエラーメッセージを確認</li>
+                    <li>Network タブで、FFmpeg ファイルが 404 などでダウンロード失敗していないか確認</li>
+                    <li>HTTPヘッダーの <code>Content-Type: application/wasm</code> が正しく設定されているか確認</li>
+                </ul>
+                <p><strong>「メモリ不足で処理に失敗しました」エラーが表示される場合：</strong></p>
+                <ul>
+                    <li>iPad のメモリ不足の可能性があります。他のアプリを閉じてから再試行してください。</li>
+                    <li>より短い、またはより小さなサイズの動画でテストしてください。</li>
+                    <li>4K動画や15分以上の長時間動画での失敗が連続する場合は、そのデバイスでの変換は困難です。</li>
+                </ul>
+                <p><strong>変換が途中で止まる、またはアプリがクラッシュする場合：</strong></p>
+                <ul>
+                    <li>バックグラウンドでの長時間処理は、iOSによって中断される場合があります。</li>
+                    <li>Safari以外のブラウザ（Chrome等）でも試しましたか？</li>
+                    <li>ブラウザを再起動し、キャッシュをクリアしてから再操作してください。</li>
+                </ul>
+
+                <h3>テスト項目チェックリスト</h3>
+                <p>本運用前に、以下のテストを完了してください：</p>
+                <ul>
+                    <li>☐ 短い横長MOV動画（5～10秒）の変換</li>
+                    <li>☐ 短い縦長MOV動画（5～10秒）の変換</li>
+                    <li>☐ 1080p未満の動画が拡大されていないことを確認</li>
+                    <li>☐ 音声ありの動画の変換</li>
+                    <li>☐ 音声なし（画像のみ）の動画の変換</li>
+                    <li>☐ 複数動画（3～5本）の順次変換</li>
+                    <li>☐ 大容量動画（500MB以上）に対する警告表示</li>
+                    <li>☐ 4K動画（3840×2160）が1080pに圧縮されることを確認</li>
+                    <li>☐ HDR動画への対応状況（適切に処理または非対応と表示されることを確認）</li>
+                    <li>☐ 破損した動画ファイルが除外されること</li>
+                    <li>☐ 非対応コーデックの動画が除外されること</li>
+                    <li>☐ 途中キャンセル後の再試行が正常に動作すること</li>
+                    <li>☐ Safari を閉じてからの再開操作（一時データは削除される可能性あり）</li>
+                    <li>☐ ダウンロード機能で MP4 ファイルが端末に保存されること</li>
+                    <li>☐ 共有機能で、別のアプリへのMP4送信が可能なこと（環境依存）</li>
+                    <li>☐ 変換前後で元の動画が変更・削除されていないこと（ファイルシステムで確認）</li>
+                    <li>☐ 出力MP4が実際にH.264およびAACで符号化されていることを、メディア情報ツール（MediaInfo等）で確認</li>
+                    <li>☐ WindowsのEdgeでも同様に動作すること</li>
+                    <li>☐ ネットワークトレース（Fiddler等）で、動画データが外部へ送信されていないことを確認</li>
+                </ul>
+
+                <h3>ライセンス・著作権</h3>
+                <ul>
+                    <li><strong>FFmpeg：</strong>LGPL v2.1以上（一部のコーデックはGPL対象）</li>
+                    <li><strong>FFmpeg.wasm：</strong>MIT License</li>
+                    <li><strong>このアプリ：</strong>独自ライセンス（学校教育用途での利用を想定）</li>
+                    <li><strong>著作権表示：</strong>FFmpegの利用にあたり、LGPLの規定に従い、ライセンス情報をアプリ内またはドキュメントに記載してください。</li>
+                </ul>
+
+                <h3>既知の問題・制限</h3>
+                <ul>
+                    <li><strong>iOS/iPadOS のWebAssemlyメモリ上限：</strong>モデルやバージョンによって異なりますが、一般に iPhone は 100～200MB、iPad は 300～500MB 程度に制限されます。</li>
+                    <li><strong>HDR動画：</strong>現在のFFmpeg.wasm実装では、HDR（HEIF、Dolby Vision等）の完全な処理に対応していません。HDR入力は SDR で出力されるため、色が正確でない可能性があります。そのため、このアプリではHDR動画を検出した場合、警告を表示します。</li>
+                    <li><strong>字幕・メタデータ：</strong>このアプリは字幕トラック、位置情報メタデータを削除してMP4を出力します。必要な場合は、別途ツールで処理してください。</li>
+                    <li><strong>バックグラウンド処理：</strong>iOSはWebアプリのバックグラウンド実行を制限します。Safari を切り替えると処理が中断される可能性があります。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== グローバル状態管理 ==========
+        const appState = {
+            videos: [],
+            converting: false,
+            conversionQueue: [],
+            results: [],
+            ffmpeg: null,
+            ffmpegLoaded: false,
+            currentIndex: -1,
+            cancelRequested: false,
+            workerPath: '/ffmpeg',
+            maxVideoSize: 1 * 1024 * 1024 * 1024, // 1GB上限
+            maxVideos: 10,
+            warningSize: 500 * 1024 * 1024, // 500MB以上で警告
+            maxResolution: 1920,
+            maxFps: 30,
+            compressionQuality: 20, // H.264 crf値: 18-28, 20は中程度の品質
+        };
+
+        // ========== UI要素取得 ==========
+        const elements = {
+            selectVideoBtn: document.getElementById('selectVideoBtn'),
+            videoFileInput: document.getElementById('videoFileInput'),
+            videoListContainer: document.getElementById('videoListContainer'),
+            convertBtn: document.getElementById('convertBtn'),
+            selectSection: document.getElementById('selectSection'),
+            processingSection: document.getElementById('processingSection'),
+            resultSection: document.getElementById('resultSection'),
+            processingStatus: document.getElementById('processingStatus'),
+            currentStatus: document.getElementById('currentStatus'),
+            progressFill: document.getElementById('progressFill'),
+            progressText: document.getElementById('progressText'),
+            cancelBtn: document.getElementById('cancelBtn'),
+            resultSummary: document.getElementById('resultSummary'),
+            resultItemsContainer: document.getElementById('resultItemsContainer'),
+            resultButtonGroup: document.getElementById('resultButtonGroup'),
+            helpToggle: document.getElementById('helpToggle'),
+            helpContent: document.getElementById('helpContent'),
+        };
+
+        // ========== FFmpeg.wasm 初期化 ==========
+        const initFFmpeg = async () => {
+            try {
+                const { FFmpeg, toBlobURL } = await import(`${appState.workerPath}/ffmpeg-core.js`);
+                const baseURL = appState.workerPath;
+                appState.ffmpeg = new FFmpeg();
+                
+                await appState.ffmpeg.load({
+                    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+                });
+                
+                appState.ffmpegLoaded = true;
+                console.log('FFmpeg loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('FFmpeg ロード失敗:', error);
+                showError('FFmpeg を読み込めません。依存ファイルが正しくサーバーに配置されているか、HTTPヘッダーが正しく設定されているか確認してください。', 'FFmpeg読み込みエラー');
+                return false;
+            }
+        };
+
+        // ========== UI制御 ==========
+        const updateUI = () => {
+            elements.convertBtn.disabled = appState.videos.length === 0 || appState.converting;
+            elements.selectVideoBtn.disabled = appState.converting;
+        };
+
+        elements.selectVideoBtn.addEventListener('click', () => {
+            elements.videoFileInput.click();
+        });
+
+        elements.videoFileInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            
+            if (appState.videos.length + files.length > appState.maxVideos) {
+                showError(`最大${appState.maxVideos}本まで選択できます。`, '選択制限');
+                return;
+            }
+
+            for (const file of files) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (ext !== 'mov' && ext !== 'mp4') {
+                    showError(`${file.name} は対応していない形式です（.mov、.mp4のみ対応）。`, '非対応形式');
+                    continue;
+                }
+
+                if (file.size > appState.maxVideoSize) {
+                    showError(`${file.name} は1GBを超えています。より小さなファイルをお試しください。`, 'ファイルサイズ超過');
+                    continue;
+                }
+
+                const video = {
+                    id: Math.random().toString(36).substr(2, 9),
+                    file: file,
+                    name: file.name,
+                    originalSize: file.size,
+                    state: 'waiting',
+                    duration: null,
+                    width: null,
+                    height: null,
+                    rotation: 0,
+                    hasAudio: false,
+                    outputSize: null,
+                    outputFile: null,
+                    error: null,
+                };
+
+                appState.videos.push(video);
+            }
+
+            renderVideoList();
+            updateUI();
+            elements.videoFileInput.value = '';
+        });
+
+        const renderVideoList = () => {
+            elements.videoListContainer.innerHTML = '';
+            
+            appState.videos.forEach((video, index) => {
+                const div = document.createElement('div');
+                div.className = 'video-item';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'video-item-name';
+                nameDiv.textContent = video.name;
+                div.appendChild(nameDiv);
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'video-item-info';
+                
+                const sizeSpan = document.createElement('div');
+                sizeSpan.innerHTML = `<strong>元のサイズ：</strong>${formatBytes(video.originalSize)}`;
+                infoDiv.appendChild(sizeSpan);
+
+                const durationSpan = document.createElement('div');
+                durationSpan.innerHTML = `<strong>再生時間：</strong>${video.duration ? formatDuration(video.duration) : '読み込み中...'}`;
+                infoDiv.appendChild(durationSpan);
+
+                const resSpan = document.createElement('div');
+                resSpan.innerHTML = `<strong>解像度：</strong>${video.width && video.height ? `${video.width}×${video.height}` : '読み込み中...'}`;
+                infoDiv.appendChild(resSpan);
+
+                div.appendChild(infoDiv);
+
+                const statusDiv = document.createElement('div');
+                statusDiv.className = `video-item-status status-${video.state}`;
+                const statusText = {
+                    waiting: '待機中',
+                    loading: '読み込み中',
+                    converting: '変換中',
+                    success: '完了',
+                    failed: '失敗',
+                    cancelled: 'キャンセル'
+                };
+                statusDiv.textContent = statusText[video.state] || video.state;
+                div.appendChild(statusDiv);
+
+                if (video.error) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.color = '#c41c3b';
+                    errorDiv.style.fontSize = '12px';
+                    errorDiv.textContent = `エラー：${video.error}`;
+                    div.appendChild(errorDiv);
+                }
+
+                const buttonDiv = document.createElement('div');
+                buttonDiv.style.display = 'flex';
+                buttonDiv.style.gap = '8px';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn-secondary';
+                removeBtn.textContent = '削除';
+                removeBtn.style.flex = 'none';
+                removeBtn.style.padding = '8px 12px';
+                removeBtn.style.fontSize = '13px';
+                removeBtn.onclick = (e) => {
+                    e.preventDefault();
+                    appState.videos.splice(index, 1);
+                    renderVideoList();
+                    updateUI();
+                };
+                buttonDiv.appendChild(removeBtn);
+
+                div.appendChild(buttonDiv);
+                elements.videoListContainer.appendChild(div);
+            });
+        };
+
+        // ========== 動画情報取得 ==========
+        const getVideoInfo = async (file) => {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                const url = URL.createObjectURL(file);
+
+                video.onloadedmetadata = () => {
+                    const duration = video.duration;
+                    const width = video.videoWidth;
+                    const height = video.videoHeight;
+                    URL.revokeObjectURL(url);
+                    resolve({ duration, width, height });
+                };
+
+                video.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    resolve({ duration: null, width: null, height: null });
+                };
+
+                video.src = url;
+            });
+        };
+
+        // ========== 変換処理メイン ==========
+        elements.convertBtn.addEventListener('click', async () => {
+            if (appState.videos.length === 0 || appState.converting) return;
+
+            // 変換前に大容量ファイルをチェック
+            const largeFiles = appState.videos.filter(v => v.originalSize > appState.warningSize);
+            if (largeFiles.length > 0) {
+                const confirm = window.confirm(
+                    `${largeFiles.length}個の大容量ファイル（500MB以上）が含まれています。変換にはメモリと時間がかかります。続行しますか？`
+                );
+                if (!confirm) return;
+            }
+
+            // FFmpeg初期化
+            if (!appState.ffmpegLoaded) {
+                elements.selectSection.style.display = 'none';
+                elements.processingSection.style.display = 'block';
+                elements.processingStatus.textContent = 'FFmpeg を初期化中...';
+
+                const loaded = await initFFmpeg();
+                if (!loaded) {
+                    elements.selectSection.style.display = 'block';
+                    elements.processingSection.style.display = 'none';
+                    return;
+                }
+            }
+
+            appState.converting = true;
+            appState.cancelRequested = false;
+            appState.results = [];
+            appState.conversionQueue = appState.videos.map((v, i) => i);
+
+            elements.selectSection.style.display = 'none';
+            elements.processingSection.style.display = 'block';
+            elements.resultSection.style.display = 'none';
+            updateUI();
+
+            // 動画情報を先に取得
+            for (let i = 0; i < appState.videos.length; i++) {
+                if (appState.cancelRequested) break;
+                appState.videos[i].state = 'loading';
+                renderVideoList();
+                
+                const info = await getVideoInfo(appState.videos[i].file);
+                appState.videos[i].duration = info.duration;
+                appState.videos[i].width = info.width;
+                appState.videos[i].height = info.height;
+                
+                if (!info.width || !info.height) {
+                    appState.videos[i].state = 'failed';
+                    appState.videos[i].error = '動画情報が取得できません';
+                    renderVideoList();
+                }
+            }
+
+            // 順次変換
+            for (const idx of appState.conversionQueue) {
+                if (appState.cancelRequested) {
+                    appState.videos[idx].state = 'cancelled';
+                    continue;
+                }
+
+                if (appState.videos[idx].state === 'failed') continue;
+
+                appState.currentIndex = idx;
+                await convertVideo(idx);
+            }
+
+            appState.converting = false;
+            showResults();
+            updateUI();
+        });
+
+        const convertVideo = async (index) => {
+            const video = appState.videos[index];
+            video.state = 'converting';
+
+            elements.processingStatus.textContent = `${index + 1}/${appState.videos.length} 中、第${index + 1}個の動画を変換しています`;
+            elements.currentStatus.textContent = `ファイル：${video.name}`;
+            renderVideoList();
+
+            try {
+                // ファイルをバッファに読み込む
+                const arrayBuffer = await video.file.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+
+                // FFmpegのファイルシステムへ書き込み（安全な一意の内部名を使用）
+                const internalInputName = `input_${video.id}.mov`;
+                const internalOutputName = `output_${video.id}.mp4`;
+
+                await appState.ffmpeg.writeFile(internalInputName, data);
+
+                // 解像度計算
+                let outWidth = video.width;
+                let outHeight = video.height;
+
+                if (outWidth && outHeight) {
+                    const maxDim = Math.max(outWidth, outHeight);
+                    if (maxDim > appState.maxResolution) {
+                        const scale = appState.maxResolution / maxDim;
+                        outWidth = Math.floor(outWidth * scale / 2) * 2; // H.264用に偶数
+                        outHeight = Math.floor(outHeight * scale / 2) * 2;
+                    }
+                }
+
+                // ffmpegコマンド構築
+                let ffmpegCmd = [
+                    '-i', internalInputName,
+                    '-c:v', 'libx264',
+                    '-crf', appState.compressionQuality.toString(),
+                    '-maxrate', '5000k',
+                    '-bufsize', '10000k',
+                    '-r', appState.maxFps.toString(),
+                ];
+
+                if (outWidth && outHeight) {
+                    ffmpegCmd.push('-vf', `scale=${outWidth}:${outHeight}`);
+                }
+
+                ffmpegCmd.push('-c:a', 'aac', '-b:a', '128k');
+                ffmpegCmd.push('-movflags', '+faststart');
+                ffmpegCmd.push(internalOutputName);
+
+                // 変換実行
+                await appState.ffmpeg.exec(ffmpegCmd);
+
+                // 出力ファイルを読み込む
+                const outputData = await appState.ffmpeg.readFile(internalOutputName);
+                const outputBlob = new Blob([outputData.buffer], { type: 'video/mp4' });
+                video.outputFile = outputBlob;
+                video.outputSize = outputBlob.size;
+                video.state = 'success';
+
+                // ファイルシステムをクリーンアップ
+                try {
+                    await appState.ffmpeg.deleteFile(internalInputName);
+                    await appState.ffmpeg.deleteFile(internalOutputName);
+                } catch (e) {
+                    console.warn('ファイル削除失敗:', e);
+                }
+
+                appState.results.push({
+                    name: video.name,
+                    originalSize: video.originalSize,
+                    outputSize: video.outputSize,
+                    status: 'success'
+                });
+
+            } catch (error) {
+                console.error('変換エラー:', error);
+                video.state = 'failed';
+                video.error = error.message || 'unknown error';
+                appState.results.push({
+                    name: video.name,
+                    originalSize: video.originalSize,
+                    status: 'failed',
+                    error: error.message
+                });
+            }
+
+            renderVideoList();
+        };
+
+        elements.cancelBtn.addEventListener('click', () => {
+            appState.cancelRequested = true;
+            elements.processingSection.style.display = 'none';
+            elements.selectSection.style.display = 'block';
+            appState.converting = false;
+            updateUI();
+        });
+
+        // ========== 結果表示 ==========
+        const showResults = () => {
+            const succeeded = appState.videos.filter(v => v.state === 'success').length;
+            const failed = appState.videos.filter(v => v.state === 'failed').length;
+            const cancelled = appState.videos.filter(v => v.state === 'cancelled').length;
+
+            elements.resultSummary.innerHTML = `
+                <h2 style="margin-bottom: 16px;">変換完了</h2>
+                <div class="result-counts">
+                    <div class="count-item success">
+                        <span class="count-item-number">${succeeded}</span>
+                        <div class="count-item-label">成功</div>
+                    </div>
+                    <div class="count-item failed">
+                        <span class="count-item-number">${failed}</span>
+                        <div class="count-item-label">失敗</div>
+                    </div>
+                    <div class="count-item cancelled">
+                        <span class="count-item-number">${cancelled}</span>
+                        <div class="count-item-label">キャンセル</div>
+                    </div>
+                </div>
+            `;
+
+            elements.resultItemsContainer.innerHTML = '';
+            appState.videos.forEach((video, index) => {
+                if (video.state === 'failed' || video.state === 'success' || video.state === 'cancelled') {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result-item';
+
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'result-item-name';
+                    nameDiv.textContent = video.name;
+                    resultDiv.appendChild(nameDiv);
+
+                    if (video.state === 'success') {
+                        const sizesDiv = document.createElement('div');
+                        sizesDiv.className = 'result-item-sizes';
+                        sizesDiv.innerHTML = `
+                            <div class="size-box">
+                                <span class="size-label">変換前</span>
+                                <span class="size-value">${formatBytes(video.originalSize)}</span>
+                            </div>
+                            <div class="size-box">
+                                <span class="size-label">変換後</span>
+                                <span class="size-value">${formatBytes(video.outputSize)}</span>
+                            </div>
+                        `;
+                        resultDiv.appendChild(sizesDiv);
+
+                        const btnDiv = document.createElement('div');
+                        btnDiv.className = 'result-item-buttons';
+
+                        const downloadBtn = document.createElement('button');
+                        downloadBtn.className = 'btn-success';
+                        downloadBtn.textContent = '💾 MP4を保存';
+                        downloadBtn.onclick = (e) => {
+                            e.preventDefault();
+                            downloadVideo(video);
+                        };
+                        btnDiv.appendChild(downloadBtn);
+
+                        if (navigator.canShare && navigator.canShare({ files: [new File([], '')] })) {
+                            const shareBtn = document.createElement('button');
+                            shareBtn.className = 'btn-secondary';
+                            shareBtn.textContent = '🔗 共有';
+                            shareBtn.onclick = async (e) => {
+                                e.preventDefault();
+                                await shareVideo(video);
+                            };
+                            btnDiv.appendChild(shareBtn);
+                        }
+
+                        resultDiv.appendChild(btnDiv);
+                    } else if (video.state === 'failed') {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.style.color = '#c41c3b';
+                        errorDiv.style.fontSize = '13px';
+                        errorDiv.style.marginBottom = '8px';
+                        errorDiv.textContent = `エラー：${video.error || '不明なエラー'}`;
+                        resultDiv.appendChild(errorDiv);
+
+                        const retryBtn = document.createElement('button');
+                        retryBtn.className = 'btn-secondary';
+                        retryBtn.textContent = '🔄 再試行';
+                        retryBtn.style.flex = 'none';
+                        retryBtn.onclick = (e) => {
+                            e.preventDefault();
+                            appState.videos = appState.videos.filter((_, i) => i !== index);
+                            appState.videos.push(video);
+                            video.state = 'waiting';
+                            video.error = null;
+                            video.outputFile = null;
+                            video.outputSize = null;
+                            renderVideoList();
+                            updateUI();
+                            elements.resultSection.style.display = 'none';
+                            elements.selectSection.style.display = 'block';
+                        };
+                        resultDiv.appendChild(retryBtn);
+                    } else {
+                        const cancelDiv = document.createElement('div');
+                        cancelDiv.style.color = '#666';
+                        cancelDiv.textContent = 'キャンセルされました';
+                        resultDiv.appendChild(cancelDiv);
+                    }
+
+                    elements.resultItemsContainer.appendChild(resultDiv);
+                }
+            });
+
+            elements.resultButtonGroup.innerHTML = '';
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn-secondary';
+            deleteBtn.textContent = '🗑️ 変換済みデータを削除';
+            deleteBtn.onclick = async (e) => {
+                e.preventDefault();
+                appState.videos = appState.videos.filter(v => v.state !== 'success');
+                if (appState.ffmpeg) {
+                    try {
+                        const files = await appState.ffmpeg.listDir('/');
+                        for (const file of files) {
+                            if (file.isDir === 0) {
+                                await appState.ffmpeg.deleteFile('/' + file.name);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('一時ファイル削除失敗:', e);
+                    }
+                }
+                showResults();
+            };
+            elements.resultButtonGroup.appendChild(deleteBtn);
+
+            const newBtn = document.createElement('button');
+            newBtn.className = 'btn-primary';
+            newBtn.textContent = '➕ 新しい動画を選ぶ';
+            newBtn.onclick = (e) => {
+                e.preventDefault();
+                appState.videos = [];
+                appState.results = [];
+                renderVideoList();
+                elements.resultSection.style.display = 'none';
+                elements.selectSection.style.display = 'block';
+                updateUI();
+            };
+            elements.resultButtonGroup.appendChild(newBtn);
+
+            elements.processingSection.style.display = 'none';
+            elements.selectSection.style.display = 'none';
+            elements.resultSection.style.display = 'block';
+        };
+
+        // ========== ダウンロード・共有 ==========
+        const downloadVideo = (video) => {
+            if (!video.outputFile) return;
+
+            const url = URL.createObjectURL(video.outputFile);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = video.name.replace(/\.[^/.]+$/, '') + '.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        const shareVideo = async (video) => {
+            if (!video.outputFile || !navigator.canShare) return;
+
+            try {
+                const file = new File([video.outputFile], video.name.replace(/\.[^/.]+$/, '') + '.mp4', { type: 'video/mp4' });
+                await navigator.share({ files: [file] });
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('共有エラー:', error);
+                    showError('共有に失敗しました。ダウンロード保存をお試しください。', '共有エラー');
+                }
+            }
+        };
+
+        // ========== ユーティリティ ==========
+        const formatBytes = (bytes) => {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 10) / 10 + ' ' + sizes[i];
+        };
+
+        const formatDuration = (seconds) => {
+            if (!seconds) return '不明';
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        };
+
+        const showError = (message, title) => {
+            alert(`${title}\n\n${message}`);
+        };
+
+        // ========== 折りたたみ機能 ==========
+        elements.helpToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            elements.helpToggle.classList.toggle('active');
+            elements.helpContent.classList.toggle('active');
+        });
+
+        // ========== 初期化 ==========
+        updateUI();
+    </script>
+</body>
+</html>
